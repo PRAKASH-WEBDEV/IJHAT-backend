@@ -11,6 +11,7 @@ import {
 import "./Sidebar.css";
 import copyrightFormPdf from "../../assets/copyright-pdf.pdf";
 import subscriptionFormPdf from "../../assets/Subscription -pdf.pdf";
+import { apiUrl } from "../../config/api";
 
 const Sidebar = () => {
   const { pathname } = useLocation();
@@ -35,7 +36,7 @@ const Sidebar = () => {
     setIsSubscribing(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/newsletter/subscribe", {
+      const response = await fetch(apiUrl("/api/newsletter/subscribe"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,7 +52,7 @@ const Sidebar = () => {
         throw new Error(data.message || "Subscription failed");
       }
 
-      toast.success("Newsletter subscription successful.");
+      toast.success("Newsletter subscription successful. Please check your inbox for confirmation.");
       setNewsletterEmail("");
     } catch (error) {
       toast.error(error.message || "Unable to subscribe. Please try again.");

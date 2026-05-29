@@ -2,9 +2,20 @@ const Manuscript = require("../models/manuscript.model");
 const { sendEmail, sendMailToAdmin } = require("../utils/email.utils");
 const {
   createAdminNotificationEmail,
+  createManuscriptAcceptedEmail,
+  createManuscriptRejectedEmail,
   createUserThankYouEmail,
 } = require("../utils/emailTemplates");
 const path = require("path");
+
+const frontendUrl = () => process.env.FRONTEND_URL || "https://ijhat.org";
+const adminUrl = () => process.env.ADMIN_SUBMISSIONS_URL || process.env.ADMIN_APP_URL || `${frontendUrl()}/admin`;
+
+const getLogoAttachment = () => ({
+  filename: "logo.png",
+  path: path.join(__dirname, "../../../frontend/src/assets/logo.png"),
+  cid: "ijhat-logo",
+});
 
 exports.submitManuscript = async (req, res) => {
   console.log("Submit Api call");
@@ -40,12 +51,7 @@ exports.submitManuscript = async (req, res) => {
       },
     });
 
-    const logoPath = path.join(__dirname, "../../../frontend/src/assets/logo.png");
-    const logoAttachment = {
-      filename: "logo.png",
-      path: logoPath,
-      cid: "ijhat-logo",
-    };
+    const logoAttachment = getLogoAttachment();
 
     await Promise.all([
       sendEmail({
@@ -68,7 +74,7 @@ exports.submitManuscript = async (req, res) => {
           message: abstract,
           date: submissionDate,
           ipAddress,
-          viewUrl: process.env.ADMIN_SUBMISSIONS_URL || "http://localhost:8000",
+          viewUrl: adminUrl(),
         }),
         attachments: [
           logoAttachment,
@@ -122,17 +128,19 @@ exports.approveManuscript = async (req, res) => {
         .slice(-6)}`;
     await manuscript.save();
 
-    // send email to author
     await sendEmail({
       to: manuscript.email,
       subject: "Your Manuscript Has Been Approved",
-      html: `
-        <h2>Manuscript Approved</h2>
-        <p>Hello ${manuscript.authorName},</p>
-        <p>Your manuscript titled <b>${manuscript.articleTitle}</b> has been approved by the editor.</p>
-        <p>Thank you for submitting your research to our journal.</p>
-        <p>You can see your manuscript in Archieve Page</p>
-      `,
+      html: createManuscriptAcceptedEmail({
+        authorName: manuscript.authorName,
+        articleTitle: manuscript.articleTitle,
+        doi: manuscript.doi,
+        volume: manuscript.volume,
+        issueNumber: manuscript.issueNumber,
+        publicationDate: manuscript.publicationDate?.toLocaleDateString("en-IN"),
+        archiveUrl: `${frontendUrl()}/issues/archive`,
+      }),
+      attachments: [getLogoAttachment()],
     });
 
     res.json({ message: "Manuscript approved and author notified" });
@@ -157,13 +165,12 @@ exports.rejectManuscript = async (req, res) => {
     await sendEmail({
       to: manuscript.email,
       subject: "Manuscript Rejected",
-      html: `
-        <h2>Your manuscript was rejected</h2>
-        <p><b>Title:</b> ${manuscript.articleTitle}</p>
-        <p>Unfortunately your manuscript was not accepted.</p>
-        ${manuscript.rejectionReason ? `<p><b>Reason:</b> ${manuscript.rejectionReason}</p>` : ""}
-        <p>Thankyou for using our services. Please keep uploading</p>
-      `,
+      html: createManuscriptRejectedEmail({
+        authorName: manuscript.authorName,
+        articleTitle: manuscript.articleTitle,
+        reason: manuscript.rejectionReason,
+      }),
+      attachments: [getLogoAttachment()],
     });
 
     res.json({ message: "Rejected successfully" });

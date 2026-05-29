@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/user.model");
 const { generateToken } = require("../utils/token.utils");
 const { sendEmail } = require("../utils/email.utils");
+const { createPasswordResetOtpEmail } = require("../utils/emailTemplates");
 
 exports.register = async (req, res) => {
   try {
@@ -86,7 +87,7 @@ exports.forgotPassword = async (req, res) => {
   await sendEmail({
     to: email,
     subject: "Password Reset OTP",
-    html: `<h3>Your OTP: ${otp}</h3><p>Valid for 10 minutes</p>`,
+    html: createPasswordResetOtpEmail({ otp, expiryText: "10 minutes" }),
   });
 
   res.json({ message: "OTP sent to email" });

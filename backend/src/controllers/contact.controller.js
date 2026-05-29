@@ -5,6 +5,9 @@ const {
 } = require("../utils/emailTemplates");
 const path = require("path");
 
+const frontendUrl = () => process.env.FRONTEND_URL || "https://ijhat.org";
+const adminUrl = () => process.env.ADMIN_SUBMISSIONS_URL || process.env.ADMIN_APP_URL || `${frontendUrl()}/admin`;
+
 exports.submitContact = async (req, res) => {
   try {
     const { firstName, lastName = "", email, phone = "", subject, message } = req.body;
@@ -52,7 +55,7 @@ exports.submitContact = async (req, res) => {
           message,
           date: submissionDate,
           ipAddress,
-          viewUrl: process.env.ADMIN_SUBMISSIONS_URL || "http://localhost:8000",
+          viewUrl: adminUrl(),
         }),
         attachments: [logoAttachment],
       }),

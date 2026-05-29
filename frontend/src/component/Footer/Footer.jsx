@@ -5,6 +5,7 @@ import footerLogo from "../../assets/logo.png";
 import "./Footer.css";
 import copyrightFormPdf from "../../assets/copyright-pdf.pdf";
 import subscriptionFormPdf from "../../assets/Subscription -pdf.pdf";
+import { apiUrl } from "../../config/api";
 
 const authorLinks = [
   { title: "Submit Manuscript", path: "/submit-manuscript" },
@@ -55,7 +56,7 @@ const Footer = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/contact", {
+      const response = await fetch(apiUrl("/api/contact"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -84,10 +85,9 @@ const Footer = () => {
         });
       }
     } catch (error) {
-      console.log(error);
       setStatus({
         type: "error",
-        message: "Something went wrong. Please try again.",
+        message: error.message || "Something went wrong. Please try again.",
       });
     } finally {
       setIsSubmitting(false);

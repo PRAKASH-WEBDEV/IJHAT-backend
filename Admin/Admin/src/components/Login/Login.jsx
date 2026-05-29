@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Login.css";
+import { apiUrl } from "../../config/api";
 
 const Login = () => {
 
@@ -22,10 +23,7 @@ const Login = () => {
 
     try{
 
-      const res = await axios.post(
-        "http://localhost:3000/api/admin/login",
-        { email,password }
-      );
+      const res = await axios.post(apiUrl("/api/admin/login"), { email,password });
 
       if(res.data.token){
 
@@ -37,7 +35,7 @@ const Login = () => {
 
     }catch(err){
 
-      setError("Invalid Email or Password. Access Denied.");
+      setError(err.response?.data?.message || "Invalid Email or Password. Access Denied.");
 
     }finally{
 
@@ -55,10 +53,7 @@ const Login = () => {
 
     try{
 
-      const res = await axios.post(
-        "http://localhost:3000/api/admin/forgot-password",
-        { email }
-      );
+      const res = await axios.post(apiUrl("/api/admin/forgot-password"), { email });
 
       setMessage(res.data.message || "Password reset link sent if the email exists.");
 

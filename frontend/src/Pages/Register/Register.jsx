@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "../Login/Login.css";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { apiUrl } from "../../config/api";
 
 const RegisterPopup = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -28,7 +29,7 @@ const RegisterPopup = ({ isOpen, onClose }) => {
     setError("");
 
     try {
-      await axios.post("http://localhost:3000/api/auth/register", formData);
+      await axios.post(apiUrl("/api/auth/register"), formData);
       setLoading(false);
       onClose(); // close after success
       toast.success("Registration successful. Please login.");

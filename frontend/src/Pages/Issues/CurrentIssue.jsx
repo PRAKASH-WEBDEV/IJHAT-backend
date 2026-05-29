@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import JournalPageLayout from "../JournalPage/JournalPageLayout";
-
-const API_URL = "http://localhost:3000";
+import { apiUrl, assetUrl } from "../../config/api";
 
 const formatDate = (date) =>
   date
@@ -19,7 +18,7 @@ const CurrentIssue = () => {
 
   useEffect(() => {
     axios
-      .get(`${API_URL}/api/manuscript/archive?limit=6`)
+      .get(apiUrl("/api/manuscript/archive?limit=6"))
       .then((res) => setArticles(Array.isArray(res.data) ? res.data : []))
       .catch((err) => console.error("Current issue fetch error:", err))
       .finally(() => setLoading(false));
@@ -79,7 +78,7 @@ const CurrentIssue = () => {
                 </span>
                 {article.manuscriptFile?.path && (
                   <a
-                    href={`${API_URL}/${article.manuscriptFile.path}`}
+                    href={assetUrl(article.manuscriptFile.path)}
                     target="_blank"
                     rel="noreferrer"
                     download

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { apiUrl, assetUrl } from "../../config/api";
 import "./Profile.css";
 
 const Profile = () => {
@@ -10,7 +12,7 @@ const Profile = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     axios
-      .get("http://localhost:3000/api/user/profile", {
+      .get(apiUrl("/api/user/profile"), {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -20,7 +22,7 @@ const Profile = () => {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Failed to load profile:", err);
+        toast.error(err.response?.data?.message || "Unable to load profile.");
         setLoading(false);
       });
   }, []);
@@ -36,7 +38,7 @@ const Profile = () => {
     setUploading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.post("http://localhost:3000/api/user/upload-avatar", formData, {
+      const res = await axios.post(apiUrl("/api/user/upload-avatar"), formData, {
         headers: { 
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data" 
@@ -46,10 +48,9 @@ const Profile = () => {
       const updatedUser = { ...user, avatar: res.data.avatar };
       setUser(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser)); // Update local storage for Navbar
-      alert("Avatar updated!");
+      toast.success("Avatar updated successfully.");
     } catch (err) {
-      console.error(err);
-      alert("Upload failed. Make sure your backend route '/api/user/upload-avatar' is working.");
+      toast.error(err.response?.data?.message || "Avatar upload failed. Please try again.");
     } finally {
       setUploading(false);
       // Reset the input value so the same file can be selected again if needed
@@ -68,17 +69,16 @@ const Profile = () => {
     }
 
     try {
-      const res = await axios.put("http://localhost:3000/api/user/profile", dataToSend, {
+      const res = await axios.put(apiUrl("/api/user/profile"), dataToSend, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
       // Update local storage so Navbar name changes instantly
       localStorage.setItem("user", JSON.stringify(res.data));
-      alert("Profile saved successfully!");
+      toast.success("Profile saved successfully.");
       window.location.reload(); 
     } catch (error) {
-      console.error(error);
-      alert("Error updating profile");
+      toast.error(error.response?.data?.message || "Error updating profile.");
     }
   };
 
@@ -90,7 +90,7 @@ const Profile = () => {
         <div className="profile-header">
           <div className="avatar-section">
             <img 
-              src={user.avatar ? `http://localhost:3000/${user.avatar}` : `https://ui-avatars.com/api/?name=${user.firstName || 'User'}&background=0056b3&color=fff`} 
+              src={user.avatar ? assetUrl(user.avatar) : `https://ui-avatars.com/api/?name=${user.firstName || 'User'}&background=0056b3&color=fff`} 
               alt="Profile" 
               className={uploading ? "blur" : ""}
             />

@@ -3,6 +3,7 @@ import "./Login.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Redirect ke liye import karein
 import { toast } from "react-toastify";
+import { apiUrl } from "../../config/api";
 
 const LoginPopup = ({ isOpen, onClose, onRegisterClick, onForgotPasswordClick }) => {
   const [formData, setFormData] = useState({
@@ -29,10 +30,7 @@ const LoginPopup = ({ isOpen, onClose, onRegisterClick, onForgotPasswordClick })
     setLoading(true);
 
     try {
-      const res = await axios.post(
-        "http://localhost:3000/api/auth/login",
-        formData
-      );
+      const res = await axios.post(apiUrl("/api/auth/login"), formData);
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));

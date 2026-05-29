@@ -32,6 +32,20 @@ const detailRow = (label, value) => `
   </tr>
 `;
 
+const statusBadge = (label, background, color) => `
+  <div style="display:inline-block;background:${background};color:${color};border-radius:999px;padding:8px 14px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;">${label}</div>
+`;
+
+const primaryButton = (label, url, background = journal.primary) => `
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:22px 0;">
+    <tr>
+      <td style="border-radius:8px;background:${background};">
+        <a href="${url}" class="mobile-button" style="display:inline-block;padding:13px 22px;color:#ffffff;background:${background};border-radius:8px;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;text-decoration:none;">${label}</a>
+      </td>
+    </tr>
+  </table>
+`;
+
 const emailShell = ({ preheader, headerTitle, children, logoCid = "ijhat-logo", websiteUrl = journal.websiteUrl }) => `
 <!doctype html>
 <html lang="en">
@@ -294,6 +308,142 @@ exports.createNewsletterAdminEmail = ({
               </td>
             </tr>
           </table>
+        </td>
+      </tr>
+    `,
+  });
+
+exports.createManuscriptAcceptedEmail = ({
+  authorName = "{{authorName}}",
+  articleTitle = "{{articleTitle}}",
+  doi = "",
+  volume = "",
+  issueNumber = "",
+  publicationDate = "",
+  archiveUrl = journal.websiteUrl,
+  logoCid,
+} = {}) =>
+  emailShell({
+    logoCid,
+    headerTitle: "Manuscript Accepted",
+    preheader: "Your manuscript has been accepted for publication in IJHAT.",
+    children: `
+      <tr>
+        <td style="padding:32px 34px 8px;" class="email-padding">
+          ${statusBadge("Accepted", "#e7f8ee", "#118347")}
+          <h2 style="margin:18px 0 14px;color:#0f2f55;font-family:Arial,Helvetica,sans-serif;font-size:24px;line-height:1.35;">Manuscript Acceptance Notification</h2>
+          <p style="margin:0 0 14px;color:#34495e;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.75;">Dear ${escapeHtml(authorName)},</p>
+          <p style="margin:0 0 14px;color:#34495e;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.75;">We are pleased to inform you that your manuscript has been accepted by the editorial office of ${journal.name}.</p>
+          <p style="margin:0;color:#34495e;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.75;">Thank you for choosing IJHAT for your scholarly work.</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:18px 34px 4px;" class="email-padding">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:separate;border-spacing:0;border:1px solid #dfe8f2;border-radius:12px;overflow:hidden;">
+            <tr>
+              <td style="background:#f7fbff;padding:14px 16px;color:#0f2f55;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;">Manuscript Details</td>
+            </tr>
+            <tr>
+              <td style="padding:0;background:#ffffff;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+                  ${detailRow("Title", escapeHtml(articleTitle))}
+                  ${detailRow("DOI", escapeHtml(fallback(doi)))}
+                  ${detailRow("Volume", escapeHtml(fallback(volume)))}
+                  ${detailRow("Issue", escapeHtml(fallback(issueNumber)))}
+                  ${detailRow("Publication Date", escapeHtml(fallback(publicationDate)))}
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:0 34px 32px;" class="email-padding">
+          ${primaryButton("View Published Articles", archiveUrl, "#118347")}
+          <p style="margin:0;color:#34495e;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;">Sincerely,<br><strong>Editorial Office</strong><br>${journal.name}</p>
+        </td>
+      </tr>
+    `,
+  });
+
+exports.createManuscriptRejectedEmail = ({
+  authorName = "{{authorName}}",
+  articleTitle = "{{articleTitle}}",
+  reason = "",
+  logoCid,
+} = {}) =>
+  emailShell({
+    logoCid,
+    headerTitle: "Manuscript Decision",
+    preheader: "A decision has been recorded for your IJHAT manuscript.",
+    children: `
+      <tr>
+        <td style="padding:32px 34px 8px;" class="email-padding">
+          ${statusBadge("Not Accepted", "#fdecec", "#b42318")}
+          <h2 style="margin:18px 0 14px;color:#0f2f55;font-family:Arial,Helvetica,sans-serif;font-size:24px;line-height:1.35;">Manuscript Decision Notification</h2>
+          <p style="margin:0 0 14px;color:#34495e;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.75;">Dear ${escapeHtml(authorName)},</p>
+          <p style="margin:0 0 14px;color:#34495e;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.75;">Thank you for submitting your manuscript to ${journal.name}. After editorial review, we regret to inform you that the manuscript cannot be accepted for publication at this time.</p>
+          <p style="margin:0;color:#34495e;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.75;">We appreciate the opportunity to consider your work and encourage you to continue developing your research.</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:18px 34px 32px;" class="email-padding">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:separate;border-spacing:0;border:1px solid #dfe8f2;border-radius:12px;overflow:hidden;">
+            <tr>
+              <td style="background:#f7fbff;padding:14px 16px;color:#0f2f55;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;">Decision Details</td>
+            </tr>
+            <tr>
+              <td style="padding:0;background:#ffffff;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+                  ${detailRow("Title", escapeHtml(articleTitle))}
+                  ${detailRow("Editorial Note", formatMultiline(fallback(reason, "No additional reason was provided.")))}
+                </table>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:22px 0 0;color:#34495e;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;">Respectfully,<br><strong>Editorial Office</strong><br>${journal.name}</p>
+        </td>
+      </tr>
+    `,
+  });
+
+exports.createPasswordResetEmail = ({
+  resetUrl = journal.websiteUrl,
+  accountLabel = "IJHAT account",
+  expiryText = "15 minutes",
+  logoCid,
+} = {}) =>
+  emailShell({
+    logoCid,
+    headerTitle: "Password Reset Request",
+    preheader: `A secure password reset link is available for ${accountLabel}.`,
+    children: `
+      <tr>
+        <td style="padding:32px 34px;" class="email-padding">
+          ${statusBadge("Secure Reset", "#eef8ff", journal.primary)}
+          <h2 style="margin:18px 0 14px;color:#0f2f55;font-family:Arial,Helvetica,sans-serif;font-size:24px;line-height:1.35;">Reset Your Password</h2>
+          <p style="margin:0 0 14px;color:#34495e;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.75;">A password reset was requested for your ${escapeHtml(accountLabel)}.</p>
+          <p style="margin:0;color:#34495e;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.75;">For your security, this link expires in ${escapeHtml(expiryText)}.</p>
+          ${primaryButton("Reset Password", resetUrl)}
+          <p style="margin:0;color:#64748b;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.65;">If you did not request this reset, you can safely ignore this email.</p>
+        </td>
+      </tr>
+    `,
+  });
+
+exports.createPasswordResetOtpEmail = ({ otp = "{{otp}}", expiryText = "10 minutes", logoCid } = {}) =>
+  emailShell({
+    logoCid,
+    headerTitle: "Password Reset OTP",
+    preheader: "Use this OTP to reset your IJHAT password.",
+    children: `
+      <tr>
+        <td style="padding:32px 34px;" class="email-padding">
+          ${statusBadge("Verification Required", "#eef8ff", journal.primary)}
+          <h2 style="margin:18px 0 14px;color:#0f2f55;font-family:Arial,Helvetica,sans-serif;font-size:24px;line-height:1.35;">Your Password Reset OTP</h2>
+          <p style="margin:0 0 18px;color:#34495e;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.75;">Enter the following one-time password to continue resetting your IJHAT account password.</p>
+          <div style="background:#f7fbff;border:1px solid #d7e8f7;border-radius:12px;color:#0f2f55;font-family:Arial,Helvetica,sans-serif;font-size:30px;font-weight:800;letter-spacing:6px;padding:18px 20px;text-align:center;">${escapeHtml(otp)}</div>
+          <p style="margin:18px 0 0;color:#64748b;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.65;">This OTP expires in ${escapeHtml(expiryText)}. If you did not request it, please ignore this email.</p>
         </td>
       </tr>
     `,

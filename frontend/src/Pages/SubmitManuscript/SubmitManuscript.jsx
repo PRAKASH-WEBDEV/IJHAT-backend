@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { UploadCloud, FileText, ShieldCheck, ClipboardCheck } from "lucide-react";
 import { toast } from "react-toastify";
+import { apiUrl } from "../../config/api";
 import "./SubmitManuscript.css";
 
 const initialForm = {
@@ -51,7 +52,7 @@ const SubmitManuscript = () => {
       data.append("abstract", formData.abstract);
       data.append("manuscript", formData.manuscriptFile);
 
-      await axios.post("http://localhost:3000/api/manuscript/submit", data, {
+      await axios.post(apiUrl("/api/manuscript/submit"), data, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${userToken}`,
@@ -62,7 +63,6 @@ const SubmitManuscript = () => {
       setFormData(initialForm);
       e.target.reset();
     } catch (error) {
-      console.error("Submission error:", error);
       toast.error(
         error.response?.data?.message ||
           "Submission failed. Please check your file and try again."

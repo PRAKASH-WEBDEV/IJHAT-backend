@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Mail, MapPin, Phone, Clock } from "lucide-react";
 import { toast } from "react-toastify";
+import { apiUrl } from "../../config/api";
 import "./Contact.css";
 
 const initialForm = {
@@ -27,7 +28,7 @@ const Contact = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/contact", {
+      const response = await fetch(apiUrl("/api/contact"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

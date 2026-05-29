@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
+import { ADMIN_APP_URL } from "./config/api";
 
 import Header from "./component/Header/Header.jsx";
 import Navbar from "./component/Navbaar/Navbar.jsx";
@@ -58,7 +59,7 @@ function App() {
 
   function AdminRedirect() {
     useEffect(() => {
-      window.location.href = "http://localhost:8000";
+      window.location.href = ADMIN_APP_URL;
     }, []);
 
     return <h2>Redirecting to Admin...</h2>;

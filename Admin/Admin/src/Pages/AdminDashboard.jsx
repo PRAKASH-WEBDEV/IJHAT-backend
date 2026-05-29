@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
   FaBars,
@@ -15,8 +15,8 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
+import { apiUrl, assetUrl } from "../config/api";
 
-const API_URL = "http://localhost:3000";
 const itemsPerPage = 6;
 
 const statusOptions = [
@@ -46,19 +46,19 @@ const AdminDashboard = () => {
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState("");
 
-  const getAuthConfig = () => ({
+  const getAuthConfig = useCallback(() => ({
     headers: {
       Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
     },
-  });
+  }), []);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError("");
 
     try {
       const res = await axios.get(
-        `${API_URL}/api/manuscript/admin/list`,
+        apiUrl("/api/manuscript/admin/list"),
         getAuthConfig()
       );
       setSubmissions(Array.isArray(res.data) ? res.data : []);
@@ -70,11 +70,11 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getAuthConfig]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const metrics = useMemo(() => {
     const approved = submissions.filter((item) => item.status === "approved").length;
@@ -133,7 +133,7 @@ const AdminDashboard = () => {
 
   const approveManuscript = (id) => {
     runAction(`approve-${id}`, () =>
-      axios.put(`${API_URL}/api/manuscript/${id}/approve`, {}, getAuthConfig())
+      axios.put(apiUrl(`/api/manuscript/${id}/approve`), {}, getAuthConfig())
     );
   };
 
@@ -141,7 +141,7 @@ const AdminDashboard = () => {
     if (!window.confirm("Delete this manuscript permanently?")) return;
 
     runAction(`delete-${id}`, () =>
-      axios.delete(`${API_URL}/api/manuscript/${id}`, getAuthConfig())
+      axios.delete(apiUrl(`/api/manuscript/${id}`), getAuthConfig())
     );
   };
 
@@ -159,7 +159,7 @@ const AdminDashboard = () => {
 
     await runAction(`reject-${selectedSubmission._id}`, () =>
       axios.put(
-        `${API_URL}/api/manuscript/${selectedSubmission._id}/reject`,
+        apiUrl(`/api/manuscript/${selectedSubmission._id}/reject`),
         { reason: rejectReason },
         getAuthConfig()
       )
@@ -370,7 +370,7 @@ const AdminDashboard = () => {
                         <td>
                           <a
                             className="file-button"
-                            href={`${API_URL}/${submission.manuscriptFile?.path}`}
+                            href={assetUrl(submission.manuscriptFile?.path)}
                             target="_blank"
                             rel="noreferrer"
                           >
@@ -470,7 +470,7 @@ const AdminDashboard = () => {
                 </dl>
                 <a
                   className="download-link"
-                  href={`${API_URL}/${latestSubmission.manuscriptFile?.path}`}
+                  href={assetUrl(latestSubmission.manuscriptFile?.path)}
                   target="_blank"
                   rel="noreferrer"
                 >

@@ -4,8 +4,7 @@ import { Link } from "react-router-dom";
 import "./Home.css";
 import Sidebar from "../../component/Sidebar/Sidebar";
 import { CalendarDays, FileText, ArrowRight, BookOpen } from "lucide-react";
-
-const API_URL = "http://localhost:3000";
+import { apiUrl, assetUrl } from "../../config/api";
 
 const formatDate = (date) =>
   date
@@ -22,7 +21,7 @@ const Home = () => {
 
   useEffect(() => {
     axios
-      .get(`${API_URL}/api/manuscript/archive?limit=3`)
+      .get(apiUrl("/api/manuscript/archive?limit=3"))
       .then((res) => setArticles(Array.isArray(res.data) ? res.data : []))
       .catch((err) => console.error("Latest articles fetch error:", err))
       .finally(() => setLoadingArticles(false));
@@ -163,7 +162,7 @@ const Home = () => {
 
                       {article.manuscriptFile?.path && (
                         <a
-                          href={`${API_URL}/${article.manuscriptFile.path}`}
+                          href={assetUrl(article.manuscriptFile.path)}
                           target="_blank"
                           rel="noreferrer"
                           download

@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { assetUrl } from "../../config/api";
 import "./ProfileDropdown.css";
 
 const ProfileDropdown = ({ user }) => {
@@ -13,7 +14,7 @@ const ProfileDropdown = ({ user }) => {
 
   // Professional fallback: Generates an avatar based on the user's name
   const fallbackAvatar = `https://ui-avatars.com/api/?name=${user?.firstName || 'U'}&background=0056b3&color=fff&size=128`;
-  const avatarSrc = user?.avatar ? `http://localhost:3000/${user.avatar}` : fallbackAvatar;
+  const avatarSrc = user?.avatar ? assetUrl(user.avatar) : fallbackAvatar;
 
   return (
     <div className="profile-dropdown-card">

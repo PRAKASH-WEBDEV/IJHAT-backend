@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { apiUrl } from "../../config/api";
 import "../Login/Login.css";
 
 const ForgotPasswordPopup = ({ isOpen, onClose }) => {
@@ -16,9 +18,10 @@ const ForgotPasswordPopup = ({ isOpen, onClose }) => {
     try {
       setLoading(true);
       setError("");
-      await axios.post("http://localhost:3000/api/auth/forgot-password", {
+      await axios.post(apiUrl("/api/auth/forgot-password"), {
         email,
       });
+      toast.success("OTP sent to your email address.");
       setStep(2);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to send OTP");
@@ -31,10 +34,11 @@ const ForgotPasswordPopup = ({ isOpen, onClose }) => {
     try {
       setLoading(true);
       setError("");
-      await axios.post("http://localhost:3000/api/auth/verify-otp", {
+      await axios.post(apiUrl("/api/auth/verify-otp"), {
         email,
         otp,
       });
+      toast.success("OTP verified. Please create a new password.");
       setStep(3);
     } catch (err) {
       setError(err.response?.data?.message || "Invalid OTP");
@@ -47,11 +51,11 @@ const ForgotPasswordPopup = ({ isOpen, onClose }) => {
     try {
       setLoading(true);
       setError("");
-      await axios.post("http://localhost:3000/api/auth/reset-password", {
+      await axios.post(apiUrl("/api/auth/reset-password"), {
         email,
         newPassword: password,
       });
-      alert("Password reset successful");
+      toast.success("Password reset successful. Please login again.");
       onClose();
       setStep(1);
       setEmail("");

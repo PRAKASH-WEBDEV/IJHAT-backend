@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import "./Login.css";
+import { apiUrl } from "../../config/api";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -25,10 +26,9 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post(
-        `http://localhost:3000/api/admin/reset-password/${token}`,
-        { password }
-      );
+      const res = await axios.post(apiUrl(`/api/admin/reset-password/${token}`), {
+        password,
+      });
 
       setMessage(res.data.message || "Password reset successfully.");
 

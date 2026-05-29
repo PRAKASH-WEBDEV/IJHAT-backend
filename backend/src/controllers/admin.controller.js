@@ -3,6 +3,11 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const { sendEmail } = require("../utils/email.utils");
+const { createPasswordResetEmail } = require("../utils/emailTemplates");
+
+const adminResetBaseUrl = () =>
+  process.env.ADMIN_RESET_URL ||
+  `${process.env.ADMIN_APP_URL || process.env.FRONTEND_URL || "https://ijhat.org"}/reset-password`;
 
 exports.adminLogin = async(req,res)=>{
 
@@ -75,29 +80,16 @@ exports.forgotAdminPassword = async (req, res) => {
     admin.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
     await admin.save();
 
-    const resetUrl = `${
-      process.env.ADMIN_RESET_URL || "http://localhost:8000/reset-password"
-    }/${resetToken}`;
+    const resetUrl = `${adminResetBaseUrl().replace(/\/$/, "")}/${resetToken}`;
 
     await sendEmail({
       to: admin.email,
       subject: "IJHAT Admin Password Reset",
-      html: `
-        <div style="margin:0;padding:28px;background:#f3f7fb;font-family:Arial,Helvetica,sans-serif;color:#172033;">
-          <div style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e1e9f2;">
-            <div style="background:#0056b3;padding:24px 28px;color:#ffffff;">
-              <h1 style="margin:0;font-size:22px;">IJHAT Admin Password Reset</h1>
-              <p style="margin:8px 0 0;color:#dff4ff;">Secure reset request for the editorial dashboard</p>
-            </div>
-            <div style="padding:28px;">
-              <p style="font-size:15px;line-height:1.7;margin:0 0 16px;">A password reset was requested for your IJHAT admin account.</p>
-              <p style="font-size:15px;line-height:1.7;margin:0 0 22px;">This link is valid for 15 minutes.</p>
-              <a href="${resetUrl}" style="display:inline-block;background:#0056b3;color:#ffffff;text-decoration:none;font-weight:700;border-radius:8px;padding:13px 18px;">Reset Password</a>
-              <p style="font-size:13px;line-height:1.7;color:#64748b;margin:24px 0 0;">If you did not request this reset, you can safely ignore this email.</p>
-            </div>
-          </div>
-        </div>
-      `,
+      html: createPasswordResetEmail({
+        resetUrl,
+        accountLabel: "IJHAT admin account",
+        expiryText: "15 minutes",
+      }),
     });
 
     res.json({

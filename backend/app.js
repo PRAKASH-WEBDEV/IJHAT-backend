@@ -6,35 +6,21 @@ const adminRoutes = require("./src/routes/admin.routes");
 const userRoutes = require("./src/routes/user.routes");
 const app = express();
 
-const configuredOrigins = (process.env.CORS_ORIGINS || "")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
-
-const developmentOrigins = [
+const allowedOrigins = [
   "http://localhost:5173",
-  "http://127.0.0.1:5173",
-  "http://localhost:5174",
-  "http://127.0.0.1:5174",
+  "https://ijahtjournal.com",
+  "https://www.ijahtjournal.com",
 ];
 
-const appOrigins = [process.env.FRONTEND_URL, process.env.ADMIN_APP_URL].filter(Boolean);
-const allowedOrigins = [...new Set([...configuredOrigins, ...appOrigins, ...developmentOrigins])];
-const isLocalDevelopmentOrigin = (origin = "") =>
-  /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
+const corsOptions = {
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin) || isLocalDevelopmentOrigin(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 app.use(express.json());
 
 app.get("/", (req, res) => {

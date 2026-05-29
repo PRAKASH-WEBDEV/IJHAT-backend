@@ -1,5 +1,5 @@
 export const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || "https://ijaht-backend.onrender.com"
+  import.meta.env.VITE_API_BASE_URL || "https://ijhat-backend.onrender.com"
 ).replace(/\/$/, "");
 
 export const apiUrl = (path = "") => {
